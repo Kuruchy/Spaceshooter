@@ -1,5 +1,8 @@
 name: Activate Unity
-on: [push]
+on:
+  push:
+    branches:
+      - master
 jobs:
   requestActivation:
     name: Request activation ✔
