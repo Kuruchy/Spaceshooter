@@ -7,8 +7,8 @@ public class CaptureByPlayer : MonoBehaviour {
 
 
     void OnTriggerEnter(Collider other) {
-        if (other.tag == "Player") {
-            if (gameObject.tag == "Vitamin") {
+        if (other.CompareTag("Player")) {
+            if (gameObject.CompareTag("Vitamin")) {
                 if (gameObject.name.Contains("Red")) {
                     // Adds 2 more shots
                     if (!other.GetComponent<PlayerController>().hasExtraShots) {

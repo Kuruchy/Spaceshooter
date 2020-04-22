@@ -20,7 +20,7 @@ public class FireControler : MonoBehaviour, IPointerDownHandler {
 
         var arrayOfChildren = GameObject.FindGameObjectWithTag("Player")
             .transform.Cast<Transform>()
-            .Where(c => c.gameObject.tag == "Spawn")
+            .Where(c => c.gameObject.CompareTag("Spawn"))
             .ToArray();
 
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -31,10 +31,10 @@ public class FireControler : MonoBehaviour, IPointerDownHandler {
         ) && nextFire < Time.time) {
             GetComponent<AudioSource>().Play();
             nextFire = Time.time + fireRate;
-            float delay = 0.02F;
+            var delay = 0.02F;
 
-            foreach (Transform shotSpawn in arrayOfChildren) {
-                GameObject clone =
+            foreach (var shotSpawn in arrayOfChildren) {
+                var clone =
                     Instantiate(
                         shot,
                         shotSpawn.position,
