@@ -8,19 +8,19 @@ public class EvasiveManeuver : MonoBehaviour {
     public Vector2 startWait;
     public Vector2 maneuverTime;
     public Vector2 maneuverWait;
-    public Boundary2 boundary;
+    public Boundary boundary;
 
     private float currentSpeed;
     private float targetManeuver;
     private Rigidbody rb;
 
-    void Start() {
+    private void Start() {
         rb = GetComponent<Rigidbody>();
         currentSpeed = rb.velocity.z;
         StartCoroutine(Evade());
     }
 
-    IEnumerator Evade() {
+    private IEnumerator Evade() {
         yield return new WaitForSeconds(Random.Range(startWait.x, startWait.y));
 
         while (true) {
@@ -31,15 +31,15 @@ public class EvasiveManeuver : MonoBehaviour {
         }
     }
 
-    void FixedUpdate() {
-        float newManeuver = Mathf.MoveTowards(rb.velocity.x, targetManeuver, Time.deltaTime * smoothing);
-        rb.velocity = new Vector3(newManeuver, 0.0f, currentSpeed);
+    private void FixedUpdate() {
+        var newManeuver = Mathf.MoveTowards(rb.velocity.x, targetManeuver, Time.deltaTime * smoothing);
+        rb.velocity = new Vector3(newManeuver, 0, currentSpeed);
         rb.position = new Vector3(
             Mathf.Clamp(rb.position.x, boundary.xMin, boundary.xMax),
-            0.0f,
+            0,
             Mathf.Clamp(rb.position.z, boundary.zMin, boundary.zMax)
         );
 
-        rb.rotation = Quaternion.Euler(0.0f, 0.0f, rb.velocity.x * -tilt);
+        rb.rotation = Quaternion.Euler(0, 0, rb.velocity.x * -tilt);
     }
 }

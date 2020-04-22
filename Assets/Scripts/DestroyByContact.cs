@@ -1,16 +1,15 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class DestroyByContact : MonoBehaviour {
     public GameObject asteroidExplosion;
     public GameObject playerExplosion;
-    public GameObject[] vitamins;
+    public List<GameObject> vitamins;
     public int scoreValue;
     private GameController gameController;
-    private GameObject vitamin;
 
-    void Start() {
-        GameObject gameControllerObject = GameObject.FindWithTag("GameController");
+    private void Start() {
+        var gameControllerObject = GameObject.FindWithTag("GameController");
         if (gameControllerObject != null) {
             gameController = gameControllerObject.GetComponent<GameController>();
         }
@@ -18,21 +17,19 @@ public class DestroyByContact : MonoBehaviour {
         if (gameControllerObject == null) {
             Debug.Log("Cannot find 'GameController' script");
         }
-
-        vitamin = vitamins[Random.Range(0, vitamins.Length)];
     }
 
     void OnTriggerEnter(Collider other) {
-        if (other.tag == "Boundary" || other.tag == "Enemy" || other.tag == "Vitamin") {
+        if (other.CompareTag("Boundary") || other.CompareTag("Enemy") || other.CompareTag("Vitamin")) {
             return;
         }
 
-        if (asteroidExplosion != null && other.tag != "Vitamin") {
+        if (asteroidExplosion != null && !other.CompareTag("Vitamin")) {
             Instantiate(asteroidExplosion, transform.position, transform.rotation);
         }
 
-        if (other.tag == "Player") {
-            if (gameObject.tag == "Vitamin") {
+        if (other.CompareTag("Player")) {
+            if (gameObject.CompareTag("Vitamin")) {
                 Debug.Log("Get Vitamin");
             } else {
                 Instantiate(playerExplosion, other.transform.position, other.transform.rotation);
@@ -43,6 +40,6 @@ public class DestroyByContact : MonoBehaviour {
         gameController.AddScore(scoreValue);
         Destroy(other.gameObject);
         Destroy(gameObject);
-        Instantiate(vitamin, transform.position, transform.rotation);
+        if (vitamins.Count > 0) Instantiate(vitamins[Random.Range(0, vitamins.Count)], transform.position, transform.rotation);
     }
 }
