@@ -31,7 +31,7 @@ public class GameController : MonoBehaviour {
 
     private void Update() {
         if (!restart) return;
-        if (Input.touchCount > 0) {
+        if (Input.GetKeyDown(KeyCode.R)) {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
@@ -54,7 +54,7 @@ public class GameController : MonoBehaviour {
             yield return new WaitForSeconds(waveWait);
 
             if (!gameOver) continue;
-            restartText.text = "Tap for restart!";
+            restartText.text = "Press (R) for restart!";
             restart = true;
             break;
         }
