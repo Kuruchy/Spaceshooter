@@ -1,57 +1,70 @@
-﻿using System;
+﻿using System.Collections;
 using UnityEngine;
-
-[Serializable] // to see the boundary class variables in the Player GameObject in a container
-public class Boundary2 // is separated from the main class on order to compact the view
-{
-    public float xMin, xMax, zMin, zMax;
-}
 
 public class PlayerController : MonoBehaviour {
     public float speed;
     public float tilt;
-    public Boundary2 boundary;
 
     public bool hasShield;
     public bool hasExtraShots;
 
     public GameObject shot;
     public Transform shotSpawn;
-    public float fireRate;
     public AudioSource shotClip;
 
-    private float nextFire;
+    [SerializeField] private float fireRate = 0.4f;
+    [SerializeField] private float paddingX = 1f;
+    [SerializeField] private float paddingZ = 2f;
+
+    private Boundary boundary;
+    private Rigidbody playerRb;
+    private Camera gameCamera;
+
+    private Coroutine fireCoroutine;
+
+    private void Start() {
+        playerRb = GetComponent<Rigidbody>();
+        gameCamera = Camera.main;
+        SetupBoundaries();
+    }
+
+    private void SetupBoundaries() {
+        boundary = new Boundary {
+            xMin = gameCamera.ViewportToWorldPoint(new Vector3(0, 0, 0)).x + paddingX,
+            xMax = gameCamera.ViewportToWorldPoint(new Vector3(1, 0, 0)).x - paddingX,
+            zMin = gameCamera.ViewportToWorldPoint(new Vector3(0, 0, 0)).z + paddingZ,
+            zMax = gameCamera.ViewportToWorldPoint(new Vector3(0, 1, 0)).y + paddingZ
+        };
+    }
 
     private void FixedUpdate() {
-        var moveHorizontal = Input.GetAxis("Horizontal");
-        var moveVertical = Input.GetAxis("Vertical");
+        var movement = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+        playerRb.velocity = movement * speed;
 
-        var movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
-        GetComponent<Rigidbody>().velocity = movement * speed;
+        playerRb.position = new Vector3(
+            Mathf.Clamp(playerRb.position.x, boundary.xMin, boundary.xMax),
+            0,
+            Mathf.Clamp(playerRb.position.z, boundary.zMin, boundary.zMax)
+        );
 
-        GetComponent<Rigidbody>().position =
-            new Vector3( // we need to limit the position of the sheep inside the window
-                Mathf.Clamp(
-                    GetComponent<Rigidbody>().position.x,
-                    boundary.xMin,
-                    boundary.xMax
-                ), // Clamp limit the value between two numbers
-                0.0f,
-                Mathf.Clamp(GetComponent<Rigidbody>().position.z, boundary.zMin, boundary.zMax)
-            );
-
-        GetComponent<Rigidbody>().rotation = Quaternion.Euler(0.0f, 0.0f, GetComponent<Rigidbody>().velocity.x * -tilt);
+        playerRb.rotation = Quaternion.Euler(0, 0, playerRb.velocity.x * -tilt);
     }
 
     private void Update() {
-        if (Input.GetButton("Fire1") && Time.time > nextFire) {
+        if (Input.GetButtonDown("Fire1")) {
+            fireCoroutine = StartCoroutine(Fire());
+        }
+
+        if (Input.GetButtonUp("Fire1")) {
+            StopCoroutine(fireCoroutine);
+        }
+    }
+
+    private IEnumerator Fire() {
+        while (true) {
             shotClip.Play();
-            nextFire = Time.time + fireRate;
-            var clone = Instantiate(
-                shot,
-                shotSpawn.position,
-                shotSpawn.rotation
-            );
+            Instantiate(shot, shotSpawn.position, shotSpawn.rotation);
+            yield return new WaitForSeconds(fireRate);
         }
     }
 }
