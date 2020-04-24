@@ -4,17 +4,23 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour {
     public float speed;
     public float tilt;
-
-    public bool hasShield;
-    public bool hasExtraShots;
-
-    public GameObject shot;
-    public Transform shotSpawn;
     public AudioSource shotClip;
 
-    [SerializeField] private float fireRate = 0.4f;
+    [SerializeField] private GameObject shot;
+    [SerializeField] private Transform shotSpawn;
+    [SerializeField] private Transform shotLSpawn;
+    [SerializeField] private Transform shotRSpawn;
+    [SerializeField] private Transform shield;
+
     [SerializeField] private float paddingX = 1f;
     [SerializeField] private float paddingZ = 2f;
+
+    [SerializeField] private float fireRate = 0.4f;
+
+    private bool hasExtraShots;
+    private float extraShotsTimeOut = 5f;
+    private float baseFireRate = 0.4f;
+    private float timeSinceLastShot;
 
     private Boundary boundary;
     private Rigidbody playerRb;
@@ -52,19 +58,59 @@ public class PlayerController : MonoBehaviour {
 
     private void Update() {
         if (Input.GetButtonDown("Fire1")) {
-            fireCoroutine = StartCoroutine(Fire());
+            fireCoroutine = !(Time.time - timeSinceLastShot > fireRate) ? null : StartCoroutine(Fire());
         }
 
         if (Input.GetButtonUp("Fire1")) {
-            StopCoroutine(fireCoroutine);
+            if (fireCoroutine != null) StopCoroutine(fireCoroutine);
         }
     }
 
     private IEnumerator Fire() {
         while (true) {
+            timeSinceLastShot = Time.time;
             shotClip.Play();
-            Instantiate(shot, shotSpawn.position, shotSpawn.rotation);
+            if (!hasExtraShots) {
+                Instantiate(shot, shotSpawn.position, shotSpawn.rotation);
+            } else {
+                Instantiate(shot, shotLSpawn.position, shotLSpawn.rotation);
+                Instantiate(shot, shotRSpawn.position, shotRSpawn.rotation);
+            }
+
             yield return new WaitForSeconds(fireRate);
         }
+    }
+
+    private IEnumerator AddExtraShots() {
+        hasExtraShots = true;
+        yield return new WaitForSeconds(extraShotsTimeOut);
+        hasExtraShots = false;
+    }
+
+    private IEnumerator IncreaseFireRate() {
+        fireRate = baseFireRate / 2;
+        yield return new WaitForSeconds(extraShotsTimeOut);
+        fireRate = baseFireRate;
+    }
+
+    public void CreateShield() {
+        Instantiate(
+                shield,
+                gameObject.transform.position,
+                gameObject.transform.rotation
+            )
+            .transform.parent = gameObject.transform;
+    }
+
+    public void TakeRedPill() {
+        if (!hasExtraShots) StartCoroutine(AddExtraShots());
+    }
+
+    public void TakeBluePill() {
+        if (GameObject.FindWithTag("Shield") == null) CreateShield();
+    }
+
+    public void TakeYellowPill() {
+        if (fireRate >= baseFireRate) StartCoroutine(IncreaseFireRate());
     }
 }
