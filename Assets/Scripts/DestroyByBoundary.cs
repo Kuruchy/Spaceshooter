@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 public class DestroyByBoundary : MonoBehaviour {
-    void OnTriggerExit(Collider other) {
-        Destroy(other.gameObject);
+    private void OnTriggerExit(Collider other) {
+        if(!other.CompareTag("Player")) Destroy(other.gameObject);
     }
 }
