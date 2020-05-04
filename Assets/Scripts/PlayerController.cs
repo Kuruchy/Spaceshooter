@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private float paddingZ = 2f;
 
     [SerializeField] private float fireRate = 0.4f;
+    [SerializeField] private BoxCollider boundaryCollider;
 
     private bool hasExtraShots;
     private float extraShotsTimeOut = 5f;
@@ -39,8 +40,11 @@ public class PlayerController : MonoBehaviour {
             xMin = gameCamera.ViewportToWorldPoint(new Vector3(0, 0, 0)).x + paddingX,
             xMax = gameCamera.ViewportToWorldPoint(new Vector3(1, 0, 0)).x - paddingX,
             zMin = gameCamera.ViewportToWorldPoint(new Vector3(0, 0, 0)).z + paddingZ,
-            zMax = gameCamera.ViewportToWorldPoint(new Vector3(0, 1, 0)).y + paddingZ
+            zMax = gameCamera.ViewportToWorldPoint(new Vector3(0, 1, 0)).z - paddingZ
         };
+
+        boundaryCollider.size =
+            new Vector3(Mathf.Abs(boundary.xMax - boundary.xMin), 1, Mathf.Abs(boundary.zMax - boundary.zMin));
     }
 
     private void FixedUpdate() {
