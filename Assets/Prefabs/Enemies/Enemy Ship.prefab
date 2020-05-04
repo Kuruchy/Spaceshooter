@@ -118,6 +118,7 @@ MonoBehaviour:
   - {fileID: 1000010178671960, guid: 731665aaa1e0b024693a8e2b87a352be, type: 3}
   - {fileID: 1000010316429850, guid: 3dc906b4980ab634181efcdf9e2b93ae, type: 3}
   scoreValue: 20
+  shake: {fileID: 5432762223244805912, guid: 3fbd856a055e00246b2e7ef7a2cc3541, type: 3}
 --- !u!114 &11414932
 MonoBehaviour:
   m_ObjectHideFlags: 0
