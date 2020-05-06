@@ -114,9 +114,9 @@ MonoBehaviour:
   asteroidExplosion: {fileID: 100012, guid: 384371afbb4354cc9a3fc68eab303756, type: 3}
   playerExplosion: {fileID: 100008, guid: a93496017806b7740910df5fd946f306, type: 3}
   vitamins:
-  - {fileID: 1000012695302012, guid: 5fa04c0f9cdb17049bf3457ba8433515, type: 3}
-  - {fileID: 1000010178671960, guid: 731665aaa1e0b024693a8e2b87a352be, type: 3}
-  - {fileID: 1000010316429850, guid: 3dc906b4980ab634181efcdf9e2b93ae, type: 3}
+  - {fileID: 3092611322020963940, guid: b3f42318ba05b3349bec54e066043884, type: 3}
+  - {fileID: 1681375801180770369, guid: 5fa04c0f9cdb17049bf3457ba8433515, type: 3}
+  - {fileID: 7777518264273325379, guid: 3dc906b4980ab634181efcdf9e2b93ae, type: 3}
   scoreValue: 20
   shake: {fileID: 5432762223244805912, guid: 3fbd856a055e00246b2e7ef7a2cc3541, type: 3}
 --- !u!114 &11414932
