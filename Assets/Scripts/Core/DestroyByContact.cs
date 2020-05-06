@@ -9,6 +9,7 @@ namespace Core {
         public List<GameObject> vitamins;
         public int scoreValue;
         private GameController gameController;
+        [SerializeField] private CameraShake shake;
 
         private void Start() {
             var gameControllerObject = GameObject.FindWithTag("GameController");
@@ -27,6 +28,7 @@ namespace Core {
             }
 
             if (asteroidExplosion != null && !other.CompareTag("Vitamin")) {
+                if (shake != null) shake.CamShake();
                 Instantiate(asteroidExplosion, transform.position, transform.rotation);
             }
 

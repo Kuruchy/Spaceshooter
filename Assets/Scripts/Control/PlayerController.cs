@@ -46,7 +46,7 @@ namespace Control {
             };
 
             boundaryCollider.size =
-                new Vector3(Mathf.Abs(boundary.xMax - boundary.xMin), 1, Mathf.Abs(boundary.zMax - boundary.zMin));
+                new Vector3(Mathf.Abs(boundary.xMax - boundary.xMin) + 2, 1, Mathf.Abs(boundary.zMax - boundary.zMin) + 4);
         }
 
         private void FixedUpdate() {

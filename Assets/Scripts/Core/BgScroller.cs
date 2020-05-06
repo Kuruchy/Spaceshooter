@@ -2,18 +2,18 @@
 
 namespace Core {
     public class BgScroller : MonoBehaviour {
-        public float scrollSpeed;
-        public float tileSizeZ;
+        [SerializeField] private float scrollSpeed;
 
-        private Vector3 startPosition;
+        private Material nebulaMaterial;
+        private Vector2 offset;
 
-        private void Start() {
-            startPosition = transform.position;
+        private void Awake() {
+            nebulaMaterial = GetComponent<Renderer>().material;
+            offset = new Vector2(0f, scrollSpeed);
         }
 
         private void Update() {
-            var newPosition = Mathf.Repeat(Time.time * scrollSpeed, tileSizeZ);
-            transform.position = startPosition + Vector3.forward * newPosition;
+            nebulaMaterial.mainTextureOffset += offset * Time.deltaTime;
         }
     }
 }
