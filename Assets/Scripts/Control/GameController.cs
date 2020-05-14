@@ -1,10 +1,11 @@
 ﻿using System.Collections;
+using Mirror;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Control {
-    public class GameController : MonoBehaviour {
+    public class GameController : NetworkBehaviour {
         public GameObject[] hazards;
         public Vector3 spawnValues;
         public int hazardCount;

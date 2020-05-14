@@ -1,9 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Core;
+using Mirror;
 using UnityEngine;
 
 namespace Control {
-    public class PlayerController : MonoBehaviour {
+    public class PlayerController : NetworkBehaviour {
         public float speed;
         public float tilt;
         public AudioSource shotClip;
@@ -18,7 +20,7 @@ namespace Control {
         [SerializeField] private float paddingZ = 2f;
 
         [SerializeField] private float fireRate = 0.4f;
-        [SerializeField] private BoxCollider boundaryCollider;
+        private BoxCollider boundaryCollider;
 
         private bool hasExtraShots;
         private float extraShotsTimeOut = 5f;
@@ -31,9 +33,13 @@ namespace Control {
 
         private Coroutine fireCoroutine;
 
-        private void Start() {
+        private void Awake() {
             playerRb = GetComponent<Rigidbody>();
             gameCamera = Camera.main;
+            boundaryCollider = GameObject.FindGameObjectWithTag("Boundary").GetComponent<BoxCollider>();
+        }
+
+        private void Start() {
             SetupBoundaries();
         }
 
@@ -45,11 +51,16 @@ namespace Control {
                 zMax = gameCamera.ViewportToWorldPoint(new Vector3(0, 1, 0)).z - paddingZ
             };
 
-            boundaryCollider.size =
-                new Vector3(Mathf.Abs(boundary.xMax - boundary.xMin) + 2, 1, Mathf.Abs(boundary.zMax - boundary.zMin) + 4);
+            boundaryCollider.size = new Vector3(
+                Mathf.Abs(boundary.xMax - boundary.xMin) + 2,
+                1,
+                Mathf.Abs(boundary.zMax - boundary.zMin) + 4
+            );
         }
 
         private void FixedUpdate() {
+            if (!isLocalPlayer) return;
+
             var movement = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             playerRb.velocity = movement * speed;
 
@@ -63,6 +74,8 @@ namespace Control {
         }
 
         private void Update() {
+            if (!isLocalPlayer) return;
+
             if (Input.GetButtonDown("Fire1")) {
                 fireCoroutine = !(Time.time - timeSinceLastShot > fireRate) ? null : StartCoroutine(Fire());
             }
@@ -99,13 +112,9 @@ namespace Control {
             fireRate = baseFireRate;
         }
 
-        public void CreateShield() {
-            Instantiate(
-                    shield,
-                    gameObject.transform.position,
-                    gameObject.transform.rotation
-                )
-                .transform.parent = gameObject.transform;
+        private void CreateShield() {
+            var instance = Instantiate(shield, gameObject.transform.position, gameObject.transform.rotation);
+            instance.transform.parent = gameObject.transform;
         }
 
         public void TakeRedPill() {

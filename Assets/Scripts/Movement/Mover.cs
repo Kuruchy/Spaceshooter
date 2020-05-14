@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using Mirror;
+using UnityEngine;
 
 namespace Movement {
-    public class Mover : MonoBehaviour {
+    public class Mover : NetworkBehaviour {
         public float speed;
 
         private void Start() {
