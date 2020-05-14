@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using Core;
+using Mirror;
 using UnityEngine;
 
 namespace Control {
-    public class PlayerController : MonoBehaviour {
+    public class PlayerController : NetworkBehaviour  {
         public float speed;
         public float tilt;
         public AudioSource shotClip;
@@ -50,6 +51,8 @@ namespace Control {
         }
 
         private void FixedUpdate() {
+            if (!isLocalPlayer) return;
+            
             var movement = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
             playerRb.velocity = movement * speed;
 
@@ -63,6 +66,8 @@ namespace Control {
         }
 
         private void Update() {
+            if (!isLocalPlayer) return;
+            
             if (Input.GetButtonDown("Fire1")) {
                 fireCoroutine = !(Time.time - timeSinceLastShot > fireRate) ? null : StartCoroutine(Fire());
             }

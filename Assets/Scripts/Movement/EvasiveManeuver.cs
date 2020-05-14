@@ -1,9 +1,10 @@
 ﻿using System.Collections;
 using Core;
+using Mirror;
 using UnityEngine;
 
 namespace Movement {
-    public class EvasiveManeuver : MonoBehaviour {
+    public class EvasiveManeuver : NetworkBehaviour {
         public float dodge;
         public float smoothing;
         public float tilt;
