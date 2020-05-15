@@ -57,7 +57,7 @@ namespace Control {
                         spawnValues.z
                     );
                     var hazardRotation = Quaternion.identity;
-                    Instantiate(hazard, hazardPosition, hazardRotation);
+                    SpawnHazard(hazard, hazardPosition, hazardRotation);
                     yield return new WaitForSeconds(spawnWait);
                 }
 
@@ -68,6 +68,11 @@ namespace Control {
                 restart = true;
                 break;
             }
+        }
+        
+        private void SpawnHazard(GameObject hazard, Vector3 hazardPosition, Quaternion hazardRotation) {
+            var instance = Instantiate(hazard, hazardPosition, hazardRotation);
+            NetworkServer.Spawn(instance);
         }
 
         private static string GetRestartText() {

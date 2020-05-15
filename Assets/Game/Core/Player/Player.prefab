@@ -4917,7 +4917,6 @@ MonoBehaviour:
   paddingX: 1
   paddingZ: 2
   fireRate: 0.4
-  boundaryCollider: {fileID: 0}
 --- !u!114 &149905900
 MonoBehaviour:
   m_ObjectHideFlags: 0
