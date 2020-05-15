@@ -33,9 +33,17 @@ namespace Control {
 
         private void Update() {
             if (!restart) return;
-            if (Input.GetKeyDown(KeyCode.R)) {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            }
+            CheckRestart();
+        }
+
+        public void AddScore(int newScoreValue) {
+            score += newScoreValue;
+            UpdateScore();
+        }
+
+        public void GameOver() {
+            gameOverText.text = "GAME OVER";
+            gameOver = true;
         }
 
         private IEnumerator SpawnWaves() {
@@ -56,24 +64,34 @@ namespace Control {
                 yield return new WaitForSeconds(waveWait);
 
                 if (!gameOver) continue;
-                restartText.text = "Press (R) for restart!";
+                restartText.text = GetRestartText();
                 restart = true;
                 break;
             }
         }
 
-        public void AddScore(int newScoreValue) {
-            score += newScoreValue;
-            UpdateScore();
+        private static string GetRestartText() {
+#if UNITY_ANDROID
+            return "Tap to restart!";
+#else
+            return "Press (R) for restart!";
+#endif
+        }
+
+        private static void CheckRestart() {
+#if UNITY_ANDROID
+            if (Input.GetTouch(0).phase == TouchPhase.Began) {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            }
+#else
+            if (Input.GetKeyDown(KeyCode.R)) {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            }
+#endif
         }
 
         private void UpdateScore() {
             scoreText.text = "Score: " + score;
-        }
-
-        public void GameOver() {
-            gameOverText.text = "GAME OVER";
-            gameOver = true;
         }
     }
 }

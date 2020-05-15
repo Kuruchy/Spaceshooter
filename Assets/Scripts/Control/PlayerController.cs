@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using Core;
 using Mirror;
 using UnityEngine;
@@ -33,10 +32,13 @@ namespace Control {
 
         private Coroutine fireCoroutine;
 
+        private Joystick joystick;
+
         private void Awake() {
             playerRb = GetComponent<Rigidbody>();
             gameCamera = Camera.main;
             boundaryCollider = GameObject.FindGameObjectWithTag("Boundary").GetComponent<BoxCollider>();
+            joystick = GameObject.FindGameObjectWithTag("Joystick").GetComponent<Joystick>();
         }
 
         private void Start() {
@@ -61,7 +63,7 @@ namespace Control {
         private void FixedUpdate() {
             if (!isLocalPlayer) return;
 
-            var movement = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+            var movement = GetMovement();
             playerRb.velocity = movement * speed;
 
             playerRb.position = new Vector3(
@@ -73,16 +75,35 @@ namespace Control {
             playerRb.rotation = Quaternion.Euler(0, 0, playerRb.velocity.x * -tilt);
         }
 
+        private Vector3 GetMovement() {
+#if UNITY_ANDROID
+            return new Vector3(joystick.Horizontal, 0, joystick.Vertical);
+#else
+            return new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+#endif
+        }
+
         private void Update() {
             if (!isLocalPlayer) return;
-
-            if (Input.GetButtonDown("Fire1")) {
-                fireCoroutine = !(Time.time - timeSinceLastShot > fireRate) ? null : StartCoroutine(Fire());
+#if UNITY_ANDROID
+            foreach (var touch in Input.touches) {
+                var touchPos = gameCamera.ScreenToWorldPoint(touch.position);
             }
 
-            if (Input.GetButtonUp("Fire1")) {
-                if (fireCoroutine != null) StopCoroutine(fireCoroutine);
-            }
+            if (Input.GetButtonDown("Fire1")) StartFire();
+            if (Input.GetButtonUp("Fire1")) StopFire();
+#else
+            if (Input.GetButtonDown("Fire1")) StartFire();
+            if (Input.GetButtonUp("Fire1")) StopFire();
+#endif
+        }
+
+        private void StopFire() {
+            if (fireCoroutine != null) StopCoroutine(fireCoroutine);
+        }
+
+        private void StartFire() {
+            fireCoroutine = !(Time.time - timeSinceLastShot > fireRate) ? null : StartCoroutine(Fire());
         }
 
         private IEnumerator Fire() {
