@@ -111,14 +111,27 @@ namespace Control {
                 timeSinceLastShot = Time.time;
                 shotClip.Play();
                 if (!hasExtraShots) {
-                    Instantiate(shot, shotSpawn.position, shotSpawn.rotation);
+                    CmdSpawnSingleShot();
                 } else {
-                    Instantiate(shot, shotLSpawn.position, shotLSpawn.rotation);
-                    Instantiate(shot, shotRSpawn.position, shotRSpawn.rotation);
+                    CmdSpawnDualShot();
                 }
 
                 yield return new WaitForSeconds(fireRate);
             }
+        }
+
+        [Command]
+        private void CmdSpawnSingleShot() {
+            var instance = Instantiate(shot, shotSpawn.position, shotSpawn.rotation);
+            NetworkServer.Spawn(instance);
+        }
+        
+        [Command]
+        private void CmdSpawnDualShot() {
+            var instance1 = Instantiate(shot, shotLSpawn.position, shotLSpawn.rotation);
+            var instance2 = Instantiate(shot, shotRSpawn.position, shotRSpawn.rotation);
+            NetworkServer.Spawn(instance1);
+            NetworkServer.Spawn(instance2);
         }
 
         private IEnumerator AddExtraShots() {
