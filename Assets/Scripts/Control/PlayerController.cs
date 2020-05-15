@@ -32,6 +32,8 @@ namespace Control {
 
         private Coroutine fireCoroutine;
 
+        private OfflineController offlineController;
+
         private Joystick joystick;
 
         private void Awake() {
@@ -39,6 +41,7 @@ namespace Control {
             gameCamera = Camera.main;
             boundaryCollider = GameObject.FindGameObjectWithTag("Boundary").GetComponent<BoxCollider>();
             joystick = GameObject.FindGameObjectWithTag("Joystick").GetComponent<Joystick>();
+            offlineController = FindObjectOfType<OfflineController>();
         }
 
         private void Start() {
@@ -61,7 +64,7 @@ namespace Control {
         }
 
         private void FixedUpdate() {
-            if (!isLocalPlayer) return;
+            if (!isLocalPlayer && !offlineController.isOffline) return;
 
             var movement = GetMovement();
             playerRb.velocity = movement * speed;
@@ -84,12 +87,8 @@ namespace Control {
         }
 
         private void Update() {
-            if (!isLocalPlayer) return;
+            if (!isLocalPlayer && !offlineController.isOffline) return;
 #if UNITY_ANDROID
-            foreach (var touch in Input.touches) {
-                var touchPos = gameCamera.ScreenToWorldPoint(touch.position);
-            }
-
             if (Input.GetButtonDown("Fire1")) StartFire();
             if (Input.GetButtonUp("Fire1")) StopFire();
 #else
@@ -111,25 +110,31 @@ namespace Control {
                 timeSinceLastShot = Time.time;
                 shotClip.Play();
                 if (!hasExtraShots) {
-                    CmdSpawnSingleShot();
+                    SpawnSingleShot();
                 } else {
-                    CmdSpawnDualShot();
+                    SpawnDualShot();
                 }
 
                 yield return new WaitForSeconds(fireRate);
             }
         }
 
-        [Command]
-        private void CmdSpawnSingleShot() {
+        private void SpawnSingleShot() {
             var instance = Instantiate(shot, shotSpawn.position, shotSpawn.rotation);
-            NetworkServer.Spawn(instance);
+            if (!offlineController.isOffline) CmdSpawnSingleShot(instance);
         }
-        
-        [Command]
-        private void CmdSpawnDualShot() {
+
+        private void SpawnDualShot() {
             var instance1 = Instantiate(shot, shotLSpawn.position, shotLSpawn.rotation);
             var instance2 = Instantiate(shot, shotRSpawn.position, shotRSpawn.rotation);
+            if (!offlineController.isOffline) CmdSpawnDualShot(instance1, instance2);
+        }
+
+        [Command]
+        private void CmdSpawnSingleShot(GameObject instance) => NetworkServer.Spawn(instance);
+
+        [Command]
+        private void CmdSpawnDualShot(GameObject instance1, GameObject instance2) {
             NetworkServer.Spawn(instance1);
             NetworkServer.Spawn(instance2);
         }

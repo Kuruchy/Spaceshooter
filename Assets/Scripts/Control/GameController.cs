@@ -18,8 +18,14 @@ namespace Control {
         public TextMeshProUGUI gameOverText;
         private bool restart;
         private bool gameOver;
+        
+        private OfflineController offlineController;
 
         private int score;
+
+        private void Awake() {
+            offlineController = FindObjectOfType<OfflineController>();
+        }
 
         private void Start() {
             gameOver = false;
@@ -72,7 +78,7 @@ namespace Control {
         
         private void SpawnHazard(GameObject hazard, Vector3 hazardPosition, Quaternion hazardRotation) {
             var instance = Instantiate(hazard, hazardPosition, hazardRotation);
-            NetworkServer.Spawn(instance);
+            if (!offlineController.isOffline) NetworkServer.Spawn(instance);
         }
 
         private static string GetRestartText() {
