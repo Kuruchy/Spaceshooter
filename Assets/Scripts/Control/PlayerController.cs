@@ -5,9 +5,11 @@ using UnityEngine;
 
 namespace Control {
     public class PlayerController : NetworkBehaviour {
-        public float speed;
-        public float tilt;
         public AudioSource shotClip;
+
+        [SerializeField] private float speed;
+        [SerializeField] private float tilt;
+        [SerializeField] private float deadZone = 0.25f;
 
         [SerializeField] private GameObject shot;
         [SerializeField] private Transform shotSpawn;
@@ -66,8 +68,7 @@ namespace Control {
         private void FixedUpdate() {
             if (!isLocalPlayer && !offlineController.isOffline) return;
 
-            var movement = GetMovement();
-            playerRb.velocity = movement * speed;
+            playerRb.velocity = GetMovement() * speed;
 
             playerRb.position = new Vector3(
                 Mathf.Clamp(playerRb.position.x, boundary.xMin, boundary.xMax),
@@ -80,10 +81,17 @@ namespace Control {
 
         private Vector3 GetMovement() {
 #if UNITY_ANDROID
-            return new Vector3(joystick.Horizontal, 0, joystick.Vertical);
+            var movement = new Vector3(joystick.Horizontal, 0, joystick.Vertical);
 #else
-            return new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+            var movement = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
 #endif
+            if (movement.magnitude < deadZone) {
+                movement = Vector3.zero;
+            } else {
+                movement = movement.normalized * ((movement.magnitude - deadZone) / (1 - deadZone));
+            }
+
+            return movement;
         }
 
         private void Update() {
